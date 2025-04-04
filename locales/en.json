@@ -1,0 +1,111 @@
+{
+  "header": {
+    "home": "Home",
+    "myNfts": "My NFTs",
+    "connectWallet": "Connect Wallet",
+    "disconnect": "Disconnect",
+    "menu": "Menu"
+  },
+  "footer": {
+    "rights": "All Rights Reserved."
+  },
+  "home": {
+    "title": "Villain NFT Burn",
+    "subtitle": "Burn 5 NFTs to claim a rare premium NFT!",
+    "loadingMessage": "Now Loading...",
+    "burnSectionTitle": "Select NFTs to Burn",
+    "selectNftsInfo": "Please select 5 NFTs",
+    "burnButton": "Burn 5 NFTs",
+    "loadingNfts": "Loading NFTs...",
+    "noNftsFound": "No burnable NFTs found",
+    "refreshButton": "Refresh",
+    "claimableNfts": "You can claim {count} premium NFTs!",
+    "claimButton": "Claim Premium NFT",
+    "burnSuccess": "Burn Successful!",
+    "burnSuccessDesc": "The 5 selected NFTs were successfully burned",
+    "txHash": "Transaction Hash",
+    "viewDetails": "Details",
+    "nextSteps": "Next Steps",
+    "checkPremiumNft": "Check if Premium NFT is available",
+    "claimSuccess": "Claim Successful!",
+    "claimSuccessDesc": "Premium NFT was claimed successfully!",
+    "viewMyNfts": "View My NFTs"
+  },
+  "myNfts": {
+    "pageTitle": "My NFTs",
+    "title": "My NFTs",
+    "allNfts": "All",
+    "totalNfts": "Total NFTs",
+    "noNftsFound": "No NFTs found",
+    "updateList": "Update",
+    "backToHome": "Back to Home",
+    "viewBurnPage": "Go to Burn/Claim Page",
+    "walletNotConnected": "Please connect your wallet to view your NFTs.",
+    "wrongNetwork": "Please switch to the correct network."
+  },
+  "nftSelection": {
+    "foundNfts": "{count} NFTs found",
+    "updateList": "Update List",
+    "selectFive": "Please select 5 NFTs ({selected}/5 selected)",
+    "selectedNfts": "Selected NFTs: #{ids}"
+  },
+  "burn": {
+    "walletNotConnected": "Connect Wallet",
+    "wrongNetwork": "Switch to {network} Network",
+    "switchNetwork": "Switching networks...",
+    "selectFiveNfts": "Please select 5 NFTs",
+    "burnNfts": "Burn 5 NFTs",
+    "processingBurn": "Processing burn...",
+    "transactionConfirming": "Confirming transaction...",
+    "errorMessage": "An error occurred during the burn process. Please check the console."
+  },
+  "claim": {
+    "claimNft": "Claim Premium NFT",
+    "processingClaim": "Processing claim...",
+    "transactionConfirming": "Confirming transaction...",
+    "claimableNfts": "You have claimable NFTs!"
+  },
+  "errors": {
+    "transaction": {
+      "failed": "Transaction confirmation failed. Please check the block explorer.",
+      "monitoring": "An error occurred while monitoring the transaction.",
+      "userRejected": "Transaction was cancelled.",
+      "generic": "An error occurred during processing. Please try again."
+    },
+    "burn": {
+      "notOwner": "You are not the owner of one or more selected NFTs.",
+      "multipleOfFive": "NFTs must be burned in multiples of 5."
+    },
+    "claim": {
+      "noNftsToFlaim": "No NFTs available to claim.",
+      "notEnoughBurned": "You haven't burned enough NFTs to qualify for a claim."
+    },
+    "walletNotConnected": "Wallet not connected",
+    "wrongNetwork": "Wrong network",
+    "nftLoading": "An error occurred while loading NFTs. Please try again."
+  },
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "refresh": "Refresh",
+    "confirm": "Confirm",
+    "viewDetails": "View Details",
+    "connectWallet": "Connect Wallet",
+    "close": "close"
+  },
+  "nft": {
+    "burnPrefix": "Villain",
+    "premiumPrefix": "Premium"
+  },
+  "debug": {
+    "testMint": "Test Mint",
+    "mintTestNFTs": "Mint Test NFTs",
+    "testMintTitle": "Mint Test NFTs",
+    "testOnly": "TEST ONLY",
+    "testMintInfo": "This feature is only available in test environments and will mint NFT-A tokens directly to your wallet for testing.",
+    "selectAmount": "Select Amount to Mint",
+    "mintSuccess": "NFTs minted successfully!",
+    "mintNFTs": "Mint {count} NFT(s)",
+    "minting": "Minting..."
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "header": {
+    "home": "HOME",
+    "myNfts": "My NFTs",
+    "connectWallet": "ウォレット接続",
+    "disconnect": "切断",
+    "menu": "MENU"
+  },
+  "footer": {
+    "rights": "All Rights Reserved."
+  },
+  "home": {
+    "title": "ヴィラン NFT バーン",
+    "subtitle": "5つのNFTをバーンして、レアな{premiumNftName}をクレームしよう！",
+    "loadingMessage": "Now Loading...",
+    "burnSectionTitle": "バーンするNFTを選択",
+    "selectNftsInfo": "5つのNFTを選択してください",
+    "burnButton": "5つのNFTをバーン",
+    "loadingNfts": "NFTを読み込み中...",
+    "noNftsFound": "バーン可能なNFTがありません",
+    "refreshButton": "再読み込み",
+    "claimableNfts": "{premiumNftName}を{count}つクレームできます！",
+    "claimButton": "{premiumNftName}をクレーム",
+    "burnSuccess": "バーン成功！",
+    "burnSuccessDesc": "選択した5つのNFTが正常にバーンされました",
+    "txHash": "トランザクションハッシュ",
+    "viewDetails": "詳細",
+    "nextSteps": "次のステップ",
+    "checkPremiumNft": "{premiumNftName}が利用可能か確認する",
+    "claimSuccess": "クレーム成功！",
+    "claimSuccessDesc": "{premiumNftName}が正常にクレームされました！",
+    "viewMyNfts": "My NFTを見る"
+  },
+  "myNfts": {
+    "pageTitle": "My NFTs",
+    "title": "My NFTs",
+    "allNfts": "ALL",
+    "totalNfts": "Total NFTs",
+    "noNftsFound": "NFTが見つかりません",
+    "updateList": "更新",
+    "backToHome": "ホームに戻る",
+    "viewBurnPage": "バーン/クレームページへ",
+    "walletNotConnected": "ウォレットを接続してください。",
+    "wrongNetwork": "正しいネットワークに切り替えてください。"
+  },
+  "nftSelection": {
+    "foundNfts": "{count}個のNFTが見つかりました",
+    "updateList": "更新",
+    "selectFive": "5つのNFTを選択してください（{selected}/5選択済み）",
+    "selectedNfts": "選択したNFT: #{ids}"
+  },
+  "burn": {
+    "walletNotConnected": "ウォレットを接続する",
+    "wrongNetwork": "{network}ネットワークに切り替える",
+    "switchNetwork": "ネットワーク切り替え中...",
+    "selectFiveNfts": "5つのNFTを選択してください",
+    "burnNfts": "5つのNFTをバーン",
+    "processingBurn": "バーン処理中...",
+    "transactionConfirming": "トランザクション確認中...",
+    "errorMessage": "バーン処理中にエラーが発生しました。コンソールを確認してください。"
+  },
+  "claim": {
+    "claimNft": "{premiumNftName}をクレーム",
+    "processingClaim": "クレーム中...",
+    "transactionConfirming": "トランザクション確認中...",
+    "claimableNfts": "クレーム可能なNFTがあります！"
+  },
+  "errors": {
+    "transaction": {
+      "failed": "トランザクションの確認に失敗しました。ブロックエクスプローラーで確認してください。",
+      "monitoring": "トランザクション監視中にエラーが発生しました。",
+      "userRejected": "トランザクションがキャンセルされました。",
+      "generic": "処理中にエラーが発生しました。再試行してください。"
+    },
+    "burn": {
+      "notOwner": "あなたがオーナーではないNFTがあります。",
+      "multipleOfFive": "NFTは5枚単位でバーンする必要があります。"
+    },
+    "claim": {
+      "noNftsToFlaim": "クレームできるNFTがありません。",
+      "notEnoughBurned": "クレームするために必要な数のNFTがバーンされていません。"
+    },
+    "walletNotConnected": "ウォレットが接続されていません",
+    "wrongNetwork": "ネットワークが正しくありません",
+    "nftLoading": "NFTの読み込み中にエラーが発生しました。再試行してください。"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "cancel": "キャンセル",
+    "refresh": "更新",
+    "confirm": "確認",
+    "viewDetails": "詳細を表示",
+    "connectWallet": "ウォレットを接続",
+    "close": "閉じる"
+  },
+  "nft": {
+    "burnPrefix": "ヴィラン",
+    "premiumPrefix": "プレミアム"
+  },
+  "debug": {
+    "testMint": "テストミント",
+    "mintTestNFTs": "テスト用NFTをミント",
+    "testMintTitle": "テスト用NFTをミント",
+    "testOnly": "テスト環境専用",
+    "testMintInfo": "この機能はテスト環境でのみ利用可能で、テスト用のNFT-Aトークンを直接ウォレットにミントします。",
+    "selectAmount": "ミント数を選択",
+    "mintSuccess": "NFTのミントに成功しました！",
+    "mintNFTs": "{count}個のNFTをミント",
+    "minting": "ミント中..."
+  }
+}
