@@ -9,7 +9,7 @@
     "lint": "next lint",
     "compile": "npx hardhat compile",
     "typechain": "npx typechain --target ethers-v6 --out-dir typechain artifacts/**/*.json",
-    "deploy": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json npx hardhat run scripts/deploy.ts",
+    "deploy": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json npx hardhat run scripts/deploy1155.ts",
     "gas": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json npx hardhat run scripts/gas-simulation.ts"
   },
   "dependencies": {

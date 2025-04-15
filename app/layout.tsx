@@ -21,13 +21,13 @@ const baseUrl = 'https://burn/0xvillain.com';
 // 言語別のメタデータ設定
 const metadataConfig = {
   ja: {
-    title: "Villain Burn NFT",
+    title: "THE POOL",
     description: "5つのNFTをバーンして、NFTをクレームしよう！",
     ogImage: "/images/logo.png",
     keywords: ["NFT", "ヴィラン", "バーンNFT", "Web3", "イーサリアム", "限定NFT"],
   },
   en: {
-    title: "Villain Burn NFT",
+    title: "THE POOL",
     description: "Burn 5 NFTs to claim a NFT!",
     ogImage: "/images/logo.png",
     keywords: ["NFT", "Villain", "Burn NFT", "Web3", "Ethereum", "Exclusive NFT"],
@@ -56,13 +56,13 @@ export function generateMetadata({ params }: { params?: { locale?: string } }): 
       url: baseUrl,
       title: meta.title,
       description: meta.description,
-      siteName: locale === 'ja' ? 'Villain Burn NFT' : 'Villain Burn NFT',
+      siteName: locale === 'ja' ? 'THE POOL' : 'THE POOL',
       images: [
         {
           url: meta.ogImage,
           width: 1200,
           height: 630,
-          alt: locale === 'ja' ? 'Villain Burn NFT' : 'Villain Burn NFT',
+          alt: locale === 'ja' ? 'THE POOL' : 'THE POOL',
         },
       ],
     },

@@ -2,9 +2,11 @@ export type NFTType = "burn" | "premium";
 
 export interface NFT {
   tokenId: number;
+  instanceId?: number;
   name: string;
   image: string;
   type: NFTType;
+  phaseId: number; // ← これが必須
 }
 
 export interface NFTMetadata {
@@ -19,3 +21,8 @@ export interface NFTDisplayOptions {
   showTokenId?: boolean;
   linkToExplorer?: boolean;
 }
+
+export type SelectedNFT = {
+  tokenId: number;
+  instanceId: number;
+};

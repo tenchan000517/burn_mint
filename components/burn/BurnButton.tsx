@@ -5,7 +5,7 @@ import { useAccount, useChainId, useConfig, useSwitchChain, useConnect } from "w
 import { useEthersSigner } from "@/hooks/useEthersSigner";
 import { ethers } from "ethers";
 import { getBurnContractAddress, networkConfig, NETWORKS } from "@/config/network";
-import burnAbi from "@/contracts/BurnNFT.json";
+import burnAbi from "@/config/ThePool.json";
 import { motion } from "framer-motion";
 import { Flame, Wallet, RefreshCw, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -13,7 +13,7 @@ import { useMetadata } from "@/contexts/MetadataContext";
 import { isMobile, isIOS, isAndroid, isMetaMaskBrowser } from '@/utils/deviceDetection';
 
 interface BurnButtonProps {
-  selectedNFTs: number[];
+  selectedNFTs: Record<number, number>; // tokenId => count
   setBurnTxHash: (hash: string | null) => void;
 }
 
@@ -147,8 +147,9 @@ export default function BurnButton({ selectedNFTs, setBurnTxHash }: BurnButtonPr
 
 
   const handleBurn = async () => {
-    if (selectedNFTs.length !== 5 || !signer || isLoading) return;
-
+    const totalSelected = Object.values(selectedNFTs).reduce((a, b) => a + b, 0);
+    if (totalSelected !== 5) return;
+    
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -158,17 +159,20 @@ export default function BurnButton({ selectedNFTs, setBurnTxHash }: BurnButtonPr
 
       console.log("[DEBUG] Attempting to burn NFTs:", selectedNFTs);
 
+      const burnAmount = Object.values(selectedNFTs).reduce((a, b) => a + b, 0);
+      const phaseId = networkConfig.getPhaseId();
+
       // Use the correct burn method based on contract type
       let tx;
 
       if (isBurnNFT_A) {
         // This is VillainNFT_A, which uses burnNFT with an array argument
         console.log("[DEBUG] Using VillainNFT_A.burnNFT method");
-        tx = await contract.burnNFT(selectedNFTs);
+        tx = await contract.burnTokens(phaseId, burnAmount)
       } else {
         // Try using burnMultiple for custom contracts
         console.log("[DEBUG] Using burnMultiple method");
-        tx = await contract.burnMultiple(selectedNFTs);
+        tx = await contract.burnTokens(phaseId, burnAmount)
       }
 
       console.log("[DEBUG] Burn transaction sent:", tx.hash);
@@ -272,12 +276,14 @@ export default function BurnButton({ selectedNFTs, setBurnTxHash }: BurnButtonPr
     );
   }
 
+  const selectedCount = Object.values(selectedNFTs).reduce((a, b) => a + b, 0);
+
   // Not enough NFTs selected - 言語対応版
-  if (selectedNFTs.length !== 5) {
+  if (selectedCount !== 5) {
     const selectNftsText = language === 'ja'
       ? `5つのNFTを選択してください`
       : `Please select 5 NFTs`;
-
+  
     return (
       <div className="group relative">
         <button
@@ -285,9 +291,9 @@ export default function BurnButton({ selectedNFTs, setBurnTxHash }: BurnButtonPr
           className="flex items-center justify-center px-2 py-4 bg-gray-300 text-gray-600 rounded-full shadow-sm text-base font-medium w-80 transition-colors"
         >
           <Flame className="mr-0 md:mr-2 opacity-50" size={20} />
-          {selectNftsText} {selectedNFTs.length > 0 ? `(${selectedNFTs.length}/5)` : ''}
+          {selectNftsText} {selectedCount > 0 ? `(${selectedCount}/5)` : ''}
         </button>
-        {selectedNFTs.length > 0 && (
+        {selectedCount > 0 && (
           <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 scale-0 rounded bg-gray-800 p-2 text-xs text-white group-hover:scale-100 transition-all duration-200 pointer-events-none z-10 whitespace-nowrap after:content-[''] after:absolute after:left-1/2 after:top-[100%] after:-translate-x-1/2 after:border-8 after:border-x-transparent after:border-b-transparent after:border-t-gray-800">
             {t('burn.selectFiveNfts')}
             <span className="block h-2"></span>

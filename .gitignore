@@ -67,3 +67,7 @@ components/debug/ContractMethodTester.tsx
 components/debug/DeploymentVerifier.tsx
 components/debug/EnhancedBurnButton.tsx
 components/debug/ProviderDebugInfo.tsx
+
+typechain-types
+artifacts
+hardhat.config.js

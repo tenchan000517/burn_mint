@@ -5,10 +5,11 @@ import { useAccount } from "wagmi";
 import { useEthersSigner } from "@/hooks/useEthersSigner";
 import { ethers } from "ethers";
 import { getBurnContractAddress } from "@/config/network";
-import burnAbi from "@/contracts/BurnNFT.json";
+import poolAbi from "@/config/ThePool.json";
 import { useNetworkCheck } from "@/hooks/useNetworkCheck";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Beaker, AlertCircle, Plus, Minus, Check } from "lucide-react";
+import { useNFTContracts } from "@/contexts/Web3Context";
 
 export default function TestMintButton() {
     const [open, setOpen] = useState(false);
@@ -22,6 +23,7 @@ export default function TestMintButton() {
     const signer = useEthersSigner();
     const isNetworkCorrect = useNetworkCheck();
     const { t, language } = useLanguage();
+    const { poolContract } = useNFTContracts();
 
     // Only show in development/test environment
     const isDev = process.env.NODE_ENV === 'development' ||
@@ -97,11 +99,23 @@ export default function TestMintButton() {
 
         try {
             const contractAddress = getBurnContractAddress();
-            const contract = new ethers.Contract(contractAddress, burnAbi, signer);
+            const contract = new ethers.Contract(contractAddress, poolAbi, signer);
 
-            // Call the batchMintTo function from the contract
-            const tx = await contract.batchMintTo(address, mintAmount);
+            console.log("[DEBUG] Minting tokens with params:", {
+                address,
+                amount: mintAmount,
+                phaseId: poolContract.currentPhaseId
+            });
+
+            // ThePoolコントラクトのmintBurnTokens関数を呼び出す
+            const tx = await contract.mintBurnTokens(
+                address,                     // 受取人アドレス
+                mintAmount,                  // ミント数量
+                poolContract.currentPhaseId  // 現在のフェーズID
+            );
+            
             setTxHash(tx.hash);
+            console.log("[DEBUG] Mint transaction sent:", tx.hash);
 
             // Wait for transaction to be mined
             const receipt = await tx.wait();
@@ -176,8 +190,17 @@ export default function TestMintButton() {
                                 <AlertCircle size={24} className="mr-3 flex-shrink-0 mt-0.5" />
                                 <p className="font-medium">
                                     {t('debug.testMintInfo') || (language === 'ja'
-                                        ? "この機能はテスト環境でのみ利用可能で、テスト用のNFT-Aトークンを直接ウォレットにミントします。"
-                                        : "This feature is only available in test environments and will mint NFT-A tokens directly to your wallet for testing.")}
+                                        ? "この機能はテスト環境でのみ利用可能で、テスト用のERC1155トークンを直接ウォレットにミントします。"
+                                        : "This feature is only available in test environments and will mint ERC1155 tokens directly to your wallet for testing.")}
+                                </p>
+                            </div>
+
+                            {/* Current Phase Info */}
+                            <div className="mb-4 p-3 border border-purple-500/30 rounded-xl bg-purple-500/10">
+                                <p className="text-sm text-purple-300">
+                                    {language === 'ja'
+                                        ? `現在のフェーズ: ${poolContract.currentPhaseId} (トークンID: ${poolContract.burnTokenId})`
+                                        : `Current Phase: ${poolContract.currentPhaseId} (Token ID: ${poolContract.burnTokenId})`}
                                 </p>
                             </div>
 

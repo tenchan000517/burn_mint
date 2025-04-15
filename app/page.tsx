@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { useEthersSigner } from "@/hooks/useEthersSigner";
 import { ethers } from "ethers";
-import { getMintContractAddress, getCurrentChainConfig } from "@/config/network";
-import mintAbi from "@/contracts/MintNFT.json";
+import { getBurnContractAddress, getCurrentChainConfig, networkConfig } from "@/config/network";
+import mintAbi from "@/config/ThePool.json";
 import { useNetworkCheck } from "@/hooks/useNetworkCheck";
 import NftSelection from "@/components/burn/NftSelection";
 import BurnButton from "@/components/burn/BurnButton";
@@ -97,14 +97,27 @@ export default function HomePage() {
 
       setIsCheckingClaims(true);
       try {
-        const contractAddress = getMintContractAddress();
+        const contractAddress = getBurnContractAddress();
         const contract = new ethers.Contract(contractAddress, mintAbi, signer);
+        const phaseId = networkConfig.getPhaseId();
 
         try {
-          const claimable = await contract.getAllowedClaimAmount(address);
+          // フェーズIDとアドレスの両方を引数として渡す
+          const claimable = await contract.getClaimableAmount(address, phaseId);
+          console.log(`[DEBUG] Claimable amount: ${claimable}`);
           setClaimableAmount(Number(claimable));
+          
+          // フェーズ情報を取得して状態を確認
+          const phaseInfo = await contract.getPhaseInfo(phaseId);
+          console.log(`[DEBUG] Phase status: ${phaseInfo.status}`);
+          
+          // Inactiveなら表示しない
+          if (Number(phaseInfo.status) === 0) {
+            setClaimableAmount(0);
+          }
         } catch (error) {
-          console.error("[DEBUG] Error calling getAllowedClaimAmount:", error);
+          console.error("[DEBUG] Error calling getClaimableAmount:", error);
+          setClaimableAmount(0);
         }
       } catch (error) {
         console.error("[DEBUG] Error in checkClaimStatus:", error);

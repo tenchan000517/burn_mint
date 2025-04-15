@@ -1,15 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { useEthersSigner } from "@/hooks/useEthersSigner";
 import { ethers } from "ethers";
-import {
-  getBurnContractAddress,
-  getMintContractAddress
-} from "@/config/network";
-import burnAbi from "@/contracts/BurnNFT.json";
-import mintAbi from "@/contracts/MintNFT.json";
+import poolAbi from "@/config/ThePool.json";
 import { useNetworkCheck } from "@/hooks/useNetworkCheck";
 import Link from "next/link";
 import NFTCard from "@/components/nft/NFTCard";
@@ -18,7 +13,9 @@ import {
   ImageOff,
   Rocket,
   Flame,
-  Loader2
+  Loader2,
+  Info,
+  Hash
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -27,6 +24,7 @@ import { NFT } from "@/types/nft";
 import Head from "next/head";
 import LoadingScreen from "@/components/ui/loadingScreen";
 import TabNavigation from "@/components/ui/tabNavigation";
+import { getBurnContractAddress, networkConfig } from "@/config/network";
 
 export default function MyNFTsPage() {
   const [nfts, setNfts] = useState<NFT[]>([]);
@@ -36,8 +34,8 @@ export default function MyNFTsPage() {
   const [refreshCounter, setRefreshCounter] = useState<number>(0);
   const [isPageLoaded, setIsPageLoaded] = useState<boolean>(false);
   const [isLoadingHidden, setIsLoadingHidden] = useState<boolean>(false);
-  const [exitingTab, setExitingTab] = useState<number | null>(null);
-  const exitAnimationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showDebugInfo, setShowDebugInfo] = useState<boolean>(false);
+  const [selectedPhase, setSelectedPhase] = useState<number | null>(null);
 
   const { address, isConnected } = useAccount();
   const signer = useEthersSigner();
@@ -51,11 +49,6 @@ export default function MyNFTsPage() {
     const pageName = t('myNfts.pageTitle');
     document.title = `${pageName} | ${metadata.project.name}`;
   }, [metadata.project.name, language, t]);
-
-  // Filtered NFT lists for each tab
-  const allNfts = nfts;
-  const burnNfts = nfts.filter(nft => nft.type === "burn");
-  const premiumNfts = nfts.filter(nft => nft.type === "premium");
 
   // Page load animation
   useEffect(() => {
@@ -81,7 +74,18 @@ export default function MyNFTsPage() {
     setRefreshCounter(prev => prev + 1);
   };
 
-  // Fetch NFT data
+  // デバッグ情報の表示切り替え
+  const toggleDebugInfo = () => {
+    setShowDebugInfo(!showDebugInfo);
+  };
+
+  // フェーズ選択ハンドラー
+  const handlePhaseSelect = (phaseId: number | null) => {
+    setSelectedPhase(phaseId);
+    setRefreshCounter(prev => prev + 1);
+  };
+
+  // Fetch NFT data from ERC1155 contract
   useEffect(() => {
     const fetchUserNFTs = async () => {
       if (!isConnected || !address || !signer || !isNetworkCorrect) {
@@ -93,44 +97,83 @@ export default function MyNFTsPage() {
       setLoadError(null);
 
       try {
-        // Get burn target NFTs
-        const burnContractAddress = getBurnContractAddress();
-        const burnContract = new ethers.Contract(burnContractAddress, burnAbi, signer);
+        const contractAddress = getBurnContractAddress();
+        const contract = new ethers.Contract(contractAddress, poolAbi, signer);
 
-        // Get minted premium NFTs
-        const mintContractAddress = getMintContractAddress();
-        const mintContract = new ethers.Contract(mintContractAddress, mintAbi, signer);
+        console.log("[DEBUG] Fetching NFTs for address", address);
 
-        // Fetch both NFT types in parallel
-        const [ownedBurnTokenIds, ownedMintTokenIds] = await Promise.all([
-          burnContract.tokensOwnedBy(address),
-          mintContract.tokensOwnedBy(address)
-        ]);
+        // 利用可能なフェーズIDを取得
+        const phaseId = selectedPhase !== null ? selectedPhase : networkConfig.getPhaseId();
+        const phasesToCheck = [phaseId]; // 選択されたフェーズまたはデフォルトフェーズのみを確認
 
-        // Format burn NFT data
-        const burnNftData: NFT[] = ownedBurnTokenIds.map((tokenId: ethers.BigNumberish) => {
-          const numTokenId = Number(tokenId);
-          return {
-            tokenId: numTokenId,
-            name: getNftName("burn", numTokenId),
-            image: getNftImageUrl("burn", numTokenId),
-            type: "burn" as const
-          };
-        });
+        const allNftData: NFT[] = [];
 
-        // Format premium NFT data
-        const mintNftData: NFT[] = ownedMintTokenIds.map((tokenId: ethers.BigNumberish) => {
-          const numTokenId = Number(tokenId);
-          return {
-            tokenId: numTokenId,
-            name: getNftName("premium", numTokenId),
-            image: getNftImageUrl("premium", numTokenId),
-            type: "premium" as const
-          };
-        });
+        // すべての利用可能なフェーズのNFTを取得
+        for (const phaseId of phasesToCheck) {
+          try {
+            // フェーズ情報を取得
+            const phaseInfo = await contract.getPhaseInfo(phaseId);
+            console.log(`[DEBUG] Phase info for phase ${phaseId}:`, phaseInfo);
 
-        // Merge both NFT types and set state
-        setNfts([...burnNftData, ...mintNftData]);
+            if (phaseInfo) {
+              const burnTokenId = Number(phaseInfo.burnTokenId);
+              const rewardTokenId = Number(phaseInfo.rewardTokenId);
+
+              console.log(`[DEBUG] burnTokenId: ${burnTokenId}, rewardTokenId: ${rewardTokenId}`);
+              console.log(`[DEBUG] Phase status: ${phaseInfo.status}`); // 0=Inactive, 1=Active, 2=ClaimOnly
+
+              // Get balances for both burn and premium token IDs
+              const [burnBalance, premiumBalance] = await Promise.all([
+                contract.balanceOf(address, burnTokenId),
+                contract.balanceOf(address, rewardTokenId)
+              ]);
+
+              // ここにログを追加
+              console.log(`[DEBUG] Address: ${address}`);
+              console.log(`[DEBUG] Burn token ID: ${burnTokenId}, Balance: ${burnBalance}`);
+              console.log(`[DEBUG] Premium token ID: ${rewardTokenId}, Balance: ${premiumBalance}`);
+
+              const numBurnBalance = Number(burnBalance);
+              const numPremiumBalance = Number(premiumBalance);
+
+              console.log(`[DEBUG] User has ${numBurnBalance} burn NFTs and ${numPremiumBalance} premium NFTs in phase ${phaseId}`);
+
+              // プレミアムNFTのメタデータをログに出力（あれば）
+              if (numPremiumBalance > 0) {
+                console.log(`[DEBUG] Premium NFT name: ${getNftName("premium", rewardTokenId)}`);
+                console.log(`[DEBUG] Premium NFT image URL: ${getNftImageUrl("premium", rewardTokenId)}`);
+              }
+
+              // Format burn NFT data
+              for (let i = 0; i < numBurnBalance; i++) {
+                allNftData.push({
+                  tokenId: burnTokenId,
+                  instanceId: i + 1, // Instance ID for UI display
+                  name: getNftName("burn", burnTokenId),
+                  image: getNftImageUrl("burn", burnTokenId),
+                  type: "burn" as const,
+                  phaseId: phaseId
+                });
+              }
+
+              // Format premium NFT data
+              for (let i = 0; i < numPremiumBalance; i++) {
+                allNftData.push({
+                  tokenId: rewardTokenId,
+                  instanceId: i + 1, // Instance ID for UI display
+                  name: getNftName("premium", rewardTokenId),
+                  image: getNftImageUrl("premium", rewardTokenId),
+                  type: "premium" as const,
+                  phaseId: phaseId
+                });
+              }
+            }
+          } catch (error) {
+            console.error(`[DEBUG] Error fetching NFTs for phase ${phaseId}:`, error);
+          }
+        }
+
+        setNfts(allNftData);
       } catch (error) {
         console.error("[DEBUG] Error fetching NFTs:", error);
         setLoadError(language === 'ja'
@@ -143,7 +186,23 @@ export default function MyNFTsPage() {
     };
 
     fetchUserNFTs();
-  }, [address, signer, isConnected, isNetworkCorrect, refreshCounter, language, getNftName, getNftImageUrl, t]);
+  }, [
+    address,
+    signer,
+    isConnected,
+    isNetworkCorrect,
+    refreshCounter,
+    language,
+    getNftName,
+    getNftImageUrl,
+    selectedPhase,
+    t
+  ]);
+
+  // Filtered NFT lists for each tab
+  const allNfts = nfts;
+  const burnNfts = nfts.filter(nft => nft.type === "burn");
+  const premiumNfts = nfts.filter(nft => nft.type === "premium");
 
   // Dynamically generated description
   const getMyNftsSubtitle = () => {
@@ -156,8 +215,8 @@ export default function MyNFTsPage() {
   };
 
   // NFT counts for each type
-  const burnNftCount = nfts.filter(nft => nft.type === "burn").length;
-  const premiumNftCount = nfts.filter(nft => nft.type === "premium").length;
+  const burnNftCount = burnNfts.length;
+  const premiumNftCount = premiumNfts.length;
 
   // Function to render NFT grid
   const renderNftGrid = (nftList: NFT[]) => {
@@ -197,11 +256,13 @@ export default function MyNFTsPage() {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
         {nftList.map((nft, index) => (
-          <div key={`${nft.type}-${nft.tokenId}`}>
+          <div key={`${nft.type}-${nft.tokenId}-${nft.instanceId}-${nft.phaseId}`}>
             <NFTCard
               tokenId={nft.tokenId}
               type={nft.type}
               animationDelay={index * 0.05}
+              showBadge={true}
+              showDetails={true}
             />
           </div>
         ))}
@@ -209,7 +270,7 @@ export default function MyNFTsPage() {
     );
   };
 
-  // 表示すべきNFTリストを取得
+  // Get current NFT list based on selected tab
   const getCurrentNFTList = () => {
     switch (tabValue) {
       case 0: return allNfts;
@@ -219,24 +280,24 @@ export default function MyNFTsPage() {
     }
   };
 
-  // タブ定義
+  // Tab definitions
   const tabs = [
     { id: 0, label: t('myNfts.allNfts') },
-    { 
-      id: 1, 
-      label: getNftTypePrefix("burn"), 
+    {
+      id: 1,
+      label: getNftTypePrefix("burn"),
       icon: <Flame size={16} className="text-red-500" />,
-      gradientClass: "from-red-400 to-red-600" 
+      gradientClass: "from-red-400 to-red-600"
     },
-    { 
-      id: 2, 
-      label: getNftTypePrefix("premium"), 
+    {
+      id: 2,
+      label: getNftTypePrefix("premium"),
       icon: <Rocket size={16} className="text-green-500" />,
       gradientClass: "from-green-400 to-green-600"
     }
   ];
 
-  // タブ変更ハンドラ
+  // Tab change handler
   const handleTabChange = (newTabValue: number) => {
     setTabValue(newTabValue);
   };
@@ -251,10 +312,10 @@ export default function MyNFTsPage() {
         <meta property="og:description" content={getFormattedDescription()} />
       </Head>
 
-      {/* Loading animation - 改良版LoadingScreenコンポーネントを使用 */}
-      <LoadingScreen 
-        isPageLoaded={isPageLoaded} 
-        isLoadingHidden={isLoadingHidden} 
+      {/* Loading animation */}
+      <LoadingScreen
+        isPageLoaded={isPageLoaded}
+        isLoadingHidden={isLoadingHidden}
         message={t('home.loadingMessage')}
       />
 
@@ -316,11 +377,11 @@ export default function MyNFTsPage() {
           {/* Main content area */}
           {isConnected && isNetworkCorrect && (
             <div>
-              {/* シンプルなタブナビゲーション - モバイルフレンドリー */}
+              {/* Simple tab navigation - mobile friendly */}
               <div className="mb-4">
-                {/* タブ統計情報 - モバイルではTotal NFTsを非表示 */}
+                {/* Tab statistics */}
                 <div className="px-1 py-2 mb-2 flex flex-wrap gap-2 justify-center">
-                  {/* Total NFTs - モバイルでは非表示 */}
+                  {/* Total NFTs - hidden on mobile */}
                   <span
                     className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-full border border-primary bg-primary bg-opacity-10 text-sm font-medium"
                   >
@@ -345,15 +406,15 @@ export default function MyNFTsPage() {
                   </span>
                 </div>
 
-                {/* 改良されたタブバー - TabNavigationコンポーネントを使用 */}
+                {/* Improved tab bar - using TabNavigation component */}
                 <div className="relative">
                   <TabNavigation
                     tabs={tabs}
                     activeTab={tabValue}
                     onTabChange={handleTabChange}
                   />
-                  
-                  {/* デスクトップのリロードボタン */}
+
+                  {/* Desktop reload button */}
                   <div className="hidden sm:block absolute top-2 right-2">
                     <button
                       onClick={handleRefresh}
@@ -401,7 +462,7 @@ export default function MyNFTsPage() {
                 </div>
               )}
 
-              {/* タブコンテンツを直接表示 - 複雑なSwipeableViewsなし */}
+              {/* Tab content */}
               {!isLoading && !loadError && (
                 <div className="min-h-[200px]">
                   {renderNftGrid(getCurrentNFTList())}

@@ -34,44 +34,43 @@ export interface AppMetadata {
 const metadataByLanguage: Record<SupportedLanguage, AppMetadata> = {
   en: {
     project: {
-      name: "Villain NFT Burn",
-      shortName: "Villain Burn",
+      name: "THE POOL",
+      shortName: "THE POOL",
       official: "0xVillain",
       description: "Burn 5 {burnNftName} NFTs to claim a rare {premiumNftName} NFT!",
       logo: "/images/logo.png" // ロゴのパスを追加
     },
     nft: {
       burn: {
-        prefix: "NFT-A(burn nft)",
-        baseUrl: "https://0xmavillain.com/data/nft/burn/images"
+        prefix: "THE POOL",
+        baseUrl: "https://0xmavillain.com/data/nft/burn/thumbnail"
       },
       premium: {
-        prefix: "NFT-B(mint nft)",
-        baseUrl: "https://0xmavillain.com/data/nft/mint/images"
+        prefix: "THE POOL TEE",
+        baseUrl: "https://0xmavillain.com/data/nft/burn/thumbnail"
       }
     },
     social: {
       twitter: "https://x.com/0xMAvillain",
       discord: "https://discord.gg/cNqJwaUTvH",
-      
     }
   },
   ja: {
     project: {
-      name: "プロジェクトタイトル",
-      shortName: "ヘッダータイトル",
+      name: "THE POOL",
+      shortName: "THE POOL",
       official: "0xVillain",
       description: "5つの{burnNftName}をバーンして{premiumNftName}をクレームしよう！",
       logo: "/images/logo.png" // ロゴのパスを追加
     },
     nft: {
       burn: {
-        prefix: "NFT-A(burn nft)",
-        baseUrl: "https://0xmavillain.com/data/nft/burn/images"
+        prefix: "THE POOL",
+        baseUrl: "https://0xmavillain.com/data/nft/burn/thumbnail"
       },
       premium: {
-        prefix: "NFT-B(mint nft)", 
-        baseUrl: "https://0xmavillain.com/data/nft/mint/images"
+        prefix: "THE POOL TEE",
+        baseUrl: "https://0xmavillain.com/data/nft/burn/thumbnail"
       }
     },
     social: {
@@ -106,7 +105,7 @@ export function MetadataProvider({ children }: { children: ReactNode }) {
   // NFT画像URLを生成するヘルパー関数
   const getNftImageUrl = (type: "burn" | "premium", tokenId: number): string => {
     const baseUrl = metadata.nft[type].baseUrl;
-    return `${baseUrl}/${tokenId}.png`;
+    return `${baseUrl}/${tokenId}.gif`;
   };
   
   // NFTタイプのプレフィックスを取得するヘルパー関数
